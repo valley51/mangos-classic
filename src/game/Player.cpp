@@ -5706,6 +5706,10 @@ void Player::CheckAreaExploreAndOutdoor()
                     XP = uint32(sObjectMgr.GetBaseXP(p->area_level) * sWorld.getConfig(CONFIG_FLOAT_RATE_XP_EXPLORE));
                 }
 
+
+				if (GetSession()->IsPremium())
+				XP *= sWorld.getConfig(CONFIG_FLOAT_RATE_XP_EXPLORE_PREMIUM);
+
                 GiveXP(XP, nullptr);
                 SendExplorationExperience(area, XP);
             }
@@ -11850,6 +11854,9 @@ void Player::RewardQuest(Quest const* pQuest, uint32 reward, Object* questGiver,
 
     // Used for client inform but rewarded only in case not max level
     uint32 xp = uint32(pQuest->XPValue(this) * sWorld.getConfig(CONFIG_FLOAT_RATE_XP_QUEST));
+
+	if (GetSession()->IsPremium())
+	xp *= sWorld.getConfig(CONFIG_FLOAT_RATE_XP_QUEST_PREMIUM);
 
     if (getLevel() < sWorld.getConfig(CONFIG_UINT32_MAX_PLAYER_LEVEL))
         GiveXP(xp, nullptr);

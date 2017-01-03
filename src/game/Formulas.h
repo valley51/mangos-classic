@@ -315,7 +315,9 @@ namespace MaNGOS
                 xp_gain *= BaseGain(pl->getLevel(), u->getLevel());
                 xp_gain *= creatureUnit->GetCreatureInfo()->ExperienceMultiplier;
 
-                return (uint32)(xp_gain * sWorld.getConfig(CONFIG_FLOAT_RATE_XP_KILL));
+                //return (uint32)(xp_gain * sWorld.getConfig(CONFIG_FLOAT_RATE_XP_KILL));
+				float premium_rate = pl->GetSession()->IsPremium() ? sWorld.getConfig(CONFIG_FLOAT_RATE_XP_KILL_PREMIUM) : 1.0f;
+				return (uint32)(xp_gain * sWorld.getConfig(CONFIG_FLOAT_RATE_XP_KILL) * premium_rate);
             }
             else
                 return 0;

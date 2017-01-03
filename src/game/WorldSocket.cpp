@@ -246,6 +246,9 @@ bool WorldSocket::HandleAuthSession(WorldPacket &recvPacket)
     BigNumber v, s, g, N, K;
     WorldPacket packet, SendAddonPacked;
 
+	bool isPremium = false;
+	uint8 expansion = 0;
+
     // Read the content of the packet
     recvPacket >> ClientBuild;
     recvPacket.read_skip<uint32>();
@@ -372,6 +375,17 @@ bool WorldSocket::HandleAuthSession(WorldPacket &recvPacket)
         return false;
     }
 
+	QueryResult* premresult =
+		+LoginDatabase.PQuery("SELECT 1 "
+			"FROM account_premium "
+			"WHERE id = '%u' "
+			"AND active = 1",
+			id);
+	if (premresult) // if account premium
+		{
+			isPremium = true;
+		}
+
     // Check locked state for server
     AccountTypes allowedAccountType = sWorld.GetPlayerSecurityLimit();
 
@@ -423,7 +437,7 @@ bool WorldSocket::HandleAuthSession(WorldPacket &recvPacket)
     SqlStatement stmt = LoginDatabase.CreateStatement(updAccount, "UPDATE account SET last_ip = ? WHERE username = ?");
     stmt.PExecute(address.c_str(), account.c_str());
 
-    if (!(m_session = new WorldSession(id, this, AccountTypes(security), mutetime, locale)))
+    if (!(m_session = new WorldSession(id, this, AccountTypes(security), isPremium, expansion,mutetime, locale)))
         return false;
 
     m_crypt.Init(&K);
